@@ -1,0 +1,37 @@
+{
+  "name": "koa-path-router",
+  "version": "0.0.1",
+  "description": "Radix tree based routing for Koa 2.x",
+  "main": "./src/Router.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlieduong94/koa-path-router.git"
+  },
+  "keywords": [
+    "koa",
+    "router",
+    "radix-tree",
+    "prefix-tree"
+  ],
+  "author": "Charlie Duong",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/charlieduong94/koa-path-router/issues"
+  },
+  "homepage": "https://github.com/charlieduong94/koa-path-router#readme",
+  "dependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-node": "^4.2.2",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "radix-router": "^2.0.0"
+  },
+  "devDependencies": {
+    "koa": "^2.2.0"
+  }
+}
