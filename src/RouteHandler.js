@@ -4,7 +4,7 @@ class RouteHandler {
     this.handlers = {}
   }
 
-  addMethodHandler (method, handlers) {
+  setMethodHandler (method, handlers) {
     this.handlers[method] = handlers
   }
 
@@ -15,16 +15,18 @@ class RouteHandler {
     const handlerFunctions = this.handlers[method]
     let index = 0
 
-    let currentFunc
-    let currentNextFunc = next
+    let nextFunc = next
 
-    // start from the last function to be called
+    // start from the last function
     for (let i = handlerFunctions.length - 1; i >= 0; i--) {
-      currentFunc = handlerFunctions[i]
-      currentNextFunc = currentFunc.bind(null, ctx, currentNextFunc)
+      const handler = handlerFunctions[i]
+      const currentNextFunc = nextFunc
+      nextFunc = async () => {
+        await handler(ctx, currentNextFunc)
+      }
     }
 
-    await currentNextFunc(ctx, next)
+    await nextFunc()
   }
 }
 

@@ -16,32 +16,34 @@ class Router {
 
     const { path, handlers } = routeData
 
-    assert(typeof routeData.path === 'string', 'The route\'s path attribute must be a string')
-    //assert(typeof routeData.handlers === 'array', 'The route\'s handler must be a function')
+    assert(typeof path === 'string', 'The route\'s path attribute must be a string')
+    assert(routeData.handlers instanceof Array, 'The route\'s handlers must be provided as an array')
 
     const method = routeData.method || 'GET'
     assert(METHODS.indexOf(method) !== -1, `Method: "${method}" is not supported`)
 
     const router = this._router
+    const handlerFuncs = this._middleware.concat(handlers)
 
+    let routeHandler
     let existingRouteData = router.lookup(path)
+
     if (existingRouteData) {
-      console.log('found path')
-      const { handler } = existingRouteData
-
-      console.log(handler)
-
+      routeHandler = existingRouteData.handler
     } else {
-      console.log('Added route handler')
-      const handler = new RouteHandler(path)
-
-      handler.addMethodHandler(method, handlers)
-
-      router.insert({
-        path,
-        handler
-      })
+      routeHandler = new RouteHandler(path)
     }
+
+    routeHandler.setMethodHandler(method, handlerFuncs)
+
+    router.insert({
+      path,
+      handler: routeHandler
+    })
+  }
+
+  use (...handlers) {
+    this._middleware = this._middleware.concat(handlers)
   }
 
   getRequestHandler () {
@@ -49,10 +51,9 @@ class Router {
     const router = self._router
 
     return async function (ctx, next) {
-      console.log('attempting to handle request')
       const middleware = self._middleware
       const { request } = ctx
-      console.log(request.url)
+      let start = Date.now()
       const routeData = router.lookup(request.url)
 
       if (routeData) {
@@ -69,7 +70,6 @@ class Router {
 for (const method of METHODS) {
   const funcName = method.toLowerCase()
   Router.prototype[funcName] = function (path, ...handlers) {
-    console.log('registering', path, method, handlers)
     this.register({
       path,
       method,
