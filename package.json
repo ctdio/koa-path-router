@@ -32,6 +32,8 @@
     "radix-router": "^2.0.0"
   },
   "devDependencies": {
-    "koa": "^2.2.0"
+    "chai": "^3.5.0",
+    "koa": "^2.2.0",
+    "mocha": "^3.3.0"
   }
 }
