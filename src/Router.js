@@ -66,6 +66,8 @@ class Router {
       path,
       handler: routeHandler
     })
+
+    return this
   }
 
   use (...handlers) {
@@ -107,6 +109,8 @@ for (const method of METHODS) {
       middleware: handlers.slice(0, handlers.length - 1),
       handler: handlers[handlers.length - 1]
     })
+
+    return this
   }
 }
 
