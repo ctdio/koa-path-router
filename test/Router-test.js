@@ -33,18 +33,19 @@ describe('Router', () => {
     }, /not supported/)
   })
 
-  it('should throw an error when registering routes with an empty handlers array', () => {
+  it('should throw an error when registering routes middleware that is ' +
+    'not an array of functions', () => {
     registerWithError({
       path: '/some/path',
-      handlers: []
-    }, /No route handlers specified/)
+      middleware: [ {} ]
+    }, /Route middleware must be a function/)
   })
 
-  it('should throw an error when registering routes with objects ' +
-    'other than functions in the handlers array', () => {
+  it('should throw an error when registering route with a handler that ' +
+    'is not a function', () => {
     registerWithError({
       path: '/some/path',
-      handlers: [ {} ]
+      handler: {}
     }, /Route handler must be a function/)
   })
 
@@ -98,8 +99,8 @@ describe('Router', () => {
     expect(handler._handlers['GET'][0]).to.equal(handlerFunc)
   })
 
-  it('should set multiple handlers if supplied as an array', () => {
-    const handlers = [
+  it('should set multiple middleware if supplied as an array', () => {
+    const middleware = [
       async () => {},
       async () => {},
       async () => {}
@@ -109,15 +110,16 @@ describe('Router', () => {
     const router = new Router()
     router.register({
       path,
-      handlers: handlers
+      middleware,
+      handler: async () => {}
     })
 
     const internalRouter = router._router
     const { handler } = internalRouter.lookup(path)
     const registeredHandlers = handler._handlers['GET']
 
-    for (let i = 0; i < handlers.length; i++) {
-      expect(handlers[i]).to.equal(registeredHandlers[i])
+    for (let i = 0; i < middleware.length; i++) {
+      expect(middleware[i]).to.equal(registeredHandlers[i])
     }
   })
 

@@ -5,16 +5,31 @@ const { METHODS } = require('http')
 
 const RouteHandler = require('./RouteHandler')
 
+function assertMiddlewareFuncs (middleware) {
+  for (const func of middleware) {
+    assert(typeof func === 'function', 'Route middleware must be a function')
+  }
+}
+
 class Router {
-  constructor () {
+  constructor (options) {
+    const {
+      middleware
+    } = options || {}
+
     this._router = new RadixRouter()
-    this._middleware = []
+
+    if (middleware) {
+      assertMiddlewareFuncs(middleware)
+    }
+
+    this._middleware = middleware || []
   }
 
   register (routeData) {
     assert(routeData, 'An object specifying route data must be provided')
 
-    const { path, handlers, handler } = routeData
+    const { path, middleware, handler } = routeData
     let handlerFuncs
 
     assert(path, 'The route\'s path must be specified')
@@ -23,19 +38,16 @@ class Router {
     const method = routeData.method || 'GET'
     assert(METHODS.indexOf(method) !== -1, `Method: "${method}" is not supported`)
 
-    if (handlers) {
-      assert(handlers instanceof Array, 'The route\'s handlers must be provided as an array')
-      assert(handlers.length > 0, 'No route handlers specified')
+    if (middleware) {
+      assert(middleware instanceof Array, 'The route\'s middleware must be provided as an array')
 
-      for (const handler of handlers) {
-        assert(typeof handler === 'function', 'Route handler must be a function')
-      }
-      handlerFuncs = this._middleware.concat(handlers)
-    } else {
-      assert(handler, 'Route handler must be provided')
-      assert(typeof handler === 'function', 'Route handler must be a function')
-      handlerFuncs = this._middleware.concat(handler)
+      assertMiddlewareFuncs(middleware)
+      handlerFuncs = this._middleware.concat(middleware)
     }
+
+    assert(handler, 'Route handler must be provided')
+    assert(typeof handler === 'function', 'Route handler must be a function')
+    handlerFuncs = handlerFuncs ? handlerFuncs.concat(handler) : this._middleware.concat(handler)
 
     const router = this._router
 
@@ -89,7 +101,11 @@ for (const method of METHODS) {
     this.register({
       path,
       method,
-      handlers
+      // treat everything before the last handler as
+      // middleware
+      // (this won't affect anything in the end)
+      middleware: handlers.slice(0, handlers.length - 1),
+      handler: handlers[handlers.length - 1]
     })
   }
 }
