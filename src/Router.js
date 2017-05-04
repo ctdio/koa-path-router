@@ -70,11 +70,9 @@ class Router {
     return this
   }
 
-  use (...handlers) {
-    for (const handler of handlers) {
-      assert(typeof handler === 'function', 'Route handler must be a function')
-    }
-    this._middleware = this._middleware.concat(handlers)
+  use (...middleware) {
+    assertMiddlewareFuncs(middleware)
+    this._middleware = this._middleware.concat(middleware)
   }
 
   getRequestHandler () {
