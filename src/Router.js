@@ -5,6 +5,9 @@ const { METHODS } = require('http')
 
 const RouteHandler = require('./RouteHandler')
 
+/**
+ * Helper function for asserting that the given middleware are functions
+ */
 function assertMiddlewareFuncs (middleware) {
   for (const func of middleware) {
     assert(typeof func === 'function', 'Route middleware must be a function')
@@ -12,6 +15,12 @@ function assertMiddlewareFuncs (middleware) {
 }
 
 class Router {
+  /**
+   * @constructor
+   *
+   * @param { Array<Function> } options.middleware - The middleware functions
+   * to add to the router
+   */
   constructor (options) {
     const {
       middleware
@@ -26,6 +35,14 @@ class Router {
     this._middleware = middleware || []
   }
 
+  /**
+   * Registers a route
+   *
+   * @param { String } routeData.path - the path used to describe the route
+   * @param { String } routeData.method - the method for the route
+   * @param { Array<Functions> } routeData.middleware - the middleware functions to add for the route
+   * @param { Function } routeData.handler - the route's handler function
+   */
   register (routeData) {
     assert(routeData, 'An object specifying route data must be provided')
 
@@ -70,11 +87,18 @@ class Router {
     return this
   }
 
+  /**
+   * Method for adding middleware like the regular koa style
+   */
   use (...middleware) {
     assertMiddlewareFuncs(middleware)
     this._middleware = this._middleware.concat(middleware)
   }
 
+  /**
+   * @returns function - an async function that can be passed to Koa
+   * for handling requests
+   */
   getRequestHandler () {
     const self = this
     const router = self._router
@@ -85,7 +109,8 @@ class Router {
       const routeData = router.lookup(request.url)
 
       if (routeData) {
-        const { handler } = routeData
+        const { handler, params } = routeData
+        ctx.params = params
 
         await handler.handleRequest(ctx, next)
       } else {
@@ -95,6 +120,9 @@ class Router {
   }
 }
 
+/**
+ * Generate methods for all of Node's supported HTTP methods
+ */
 for (const method of METHODS) {
   const funcName = method.toLowerCase()
   Router.prototype[funcName] = function (path, ...handlers) {

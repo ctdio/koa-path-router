@@ -14,9 +14,10 @@ describe('koa integration', () => {
   let server
   let port
 
-  const path = '/api/v1/test'
+  const simplePath = '/api/v1/test'
+  const placeholderPath = '/api/v2/:placeholderA/id/:placeholderB'
 
-  function request (method) {
+  function request (method, path) {
     let requestOptions = {
       hostname: 'localhost',
       port,
@@ -50,12 +51,20 @@ describe('koa integration', () => {
     router = new Router()
 
     for (const method of METHODS) {
-      router[method.toLowerCase()](path, (ctx) => {
+      router[method.toLowerCase()](simplePath, (ctx) => {
         ctx.body = {
           method
         }
       })
     }
+
+    router.register({
+      path: placeholderPath,
+      handler: async (ctx) => {
+        console.log(ctx.params)
+        ctx.body = ctx.params
+      }
+    })
   })
 
   before('set http server', (done) => {
@@ -81,7 +90,7 @@ describe('koa integration', () => {
     for (const method of METHODS) {
       // unable to handle connect requests
       if (method !== 'CONNECT') {
-        const response = await request(method)
+        const response = await request(method, simplePath)
 
         if (method !== 'HEAD') {
           expect(response).to.deep.equal({ method })
@@ -90,5 +99,12 @@ describe('koa integration', () => {
         }
       }
     }
+  })
+
+  it('should be able to parse params', async () => {
+    const placeholderValueA = 'test'
+    const placeholderValueB = 'test-id'
+    const response = await request('GET', `/api/v2/${placeholderValueA}/id/${placeholderValueB}`)
+    expect(response).to.deep.equal([placeholderValueA, placeholderValueB])
   })
 })

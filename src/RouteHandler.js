@@ -1,13 +1,30 @@
 class RouteHandler {
+  /**
+   * @constructor
+   *
+   * @param { String } path - the path of the route
+   */
   constructor (path) {
     this._path = path
     this._handlers = {}
   }
 
+  /**
+   * Register handler functions for a method
+   *
+   * @param { String } method - the method to handle
+   * @param { Array<Function> } handlers - the handler functions to use
+   */
   setMethodHandler (method, handlers) {
     this._handlers[method] = handlers
   }
 
+  /**
+   * Handle requests
+   *
+   * @param { Object } ctx - the context passed in by koa
+   * @param { Function } next - the next function in the chain
+   */
   async handleRequest (ctx, next) {
     const { request } = ctx
     const { method } = request
