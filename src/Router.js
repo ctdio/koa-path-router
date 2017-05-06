@@ -74,7 +74,7 @@ class Router {
     if (existingRouteData) {
       routeHandler = existingRouteData.handler
     } else {
-      routeHandler = new RouteHandler(path)
+      routeHandler = new RouteHandler()
     }
 
     routeHandler.setMethodHandler(method, handlerFuncs)

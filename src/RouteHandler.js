@@ -1,11 +1,8 @@
 class RouteHandler {
   /**
    * @constructor
-   *
-   * @param { String } path - the path of the route
    */
-  constructor (path) {
-    this._path = path
+  constructor () {
     this._handlers = {}
   }
 
