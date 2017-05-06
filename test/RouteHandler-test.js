@@ -1,21 +1,19 @@
 const RouteHandler = require('../src/RouteHandler')
 const { expect } = require('chai')
+const compose = require('koa-compose')
 
 describe('RouteHandler', () => {
   it('should be able to assign handlers to a method', () => {
     const method = 'GET'
     const handler = new RouteHandler()
-    const handlers = [
-      async () => {},
-      async () => {}
-    ]
+    const fn = async () => {}
 
-    handler.setMethodHandler(method, handlers)
+    handler.setMethodHandler(method, fn)
 
-    expect(handler._handlers[method]).to.equal(handlers)
+    expect(handler._handlers[method]).to.equal(fn)
   })
 
-  it('should be able to handle requests with multiple handlers ' +
+  it('should be able to handle requests with composed handlers ' +
     'if the next function is called', async () => {
     const method = 'GET'
     const handler = new RouteHandler()
@@ -31,7 +29,7 @@ describe('RouteHandler', () => {
       }
     ]
 
-    await handler.setMethodHandler(method, handlers)
+    await handler.setMethodHandler(method, compose(handlers))
     await handler.handleRequest({
       request: { method }
     })

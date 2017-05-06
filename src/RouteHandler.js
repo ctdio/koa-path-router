@@ -10,10 +10,10 @@ class RouteHandler {
    * Register handler functions for a method
    *
    * @param { String } method - the method to handle
-   * @param { Array<Function> } handlers - the handler functions to use
+   * @param { Function } handler - the handler functions to use
    */
-  setMethodHandler (method, handlers) {
-    this._handlers[method] = handlers
+  setMethodHandler (method, handler) {
+    this._handlers[method] = handler
   }
 
   /**
@@ -26,21 +26,8 @@ class RouteHandler {
     const { request } = ctx
     const { method } = request
 
-    const handlerFunctions = this._handlers[method]
-
-    if (handlerFunctions) {
-      // start from the last function
-      for (let i = handlerFunctions.length - 1; i >= 0; i--) {
-        const handler = handlerFunctions[i]
-        const currentNextFunc = next
-        next = async () => {
-          await handler(ctx, currentNextFunc)
-        }
-      }
-    }
-    if (next) {
-      await next()
-    }
+    const handlerFunc = this._handlers[method]
+    return handlerFunc(ctx, next)
   }
 }
 

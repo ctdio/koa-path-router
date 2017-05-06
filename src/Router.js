@@ -1,5 +1,6 @@
 const RadixRouter = require('radix-router')
 const assert = require('assert')
+const compose = require('koa-compose')
 
 const { METHODS } = require('http')
 
@@ -77,7 +78,7 @@ class Router {
       routeHandler = new RouteHandler()
     }
 
-    routeHandler.setMethodHandler(method, handlerFuncs)
+    routeHandler.setMethodHandler(method, compose(handlerFuncs))
 
     router.insert({
       path,
@@ -111,9 +112,9 @@ class Router {
         const { handler, params } = routeData
         ctx.params = params
 
-        await handler.handleRequest(ctx, next)
+        return handler.handleRequest(ctx, next)
       } else {
-        await next()
+        return next()
       }
     }
   }
