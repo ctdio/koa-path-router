@@ -4,13 +4,13 @@ Fast and simple routing for [koa](https://github.com/koajs/koa).
 
 ### Installation
 
-```
+```bash
 npm i --save koa-path-router
 ```
 
 ### Usage
 
-```
+```js
 const Koa = require('koa')
 const Router = require('koa-path-router')
 
@@ -63,5 +63,5 @@ app.listen(8080, () => {
 })
 ```
 
-###Todo
+### Todo
   - Add more docs
