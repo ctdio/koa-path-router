@@ -23,12 +23,10 @@ describe('RouteHandler', () => {
     let handlerBCalled = false
     const handlers = [
       async (ctx, next) => {
-        console.log('called')
         handlerACalled = true
         await next()
       },
       async (ctx, next) => {
-        console.log('called')
         handlerBCalled = true
       }
     ]

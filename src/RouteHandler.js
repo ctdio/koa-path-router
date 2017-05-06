@@ -40,7 +40,6 @@ class RouteHandler {
           await handler(ctx, currentNextFunc)
         }
       }
-
     }
     if (next) {
       await next()

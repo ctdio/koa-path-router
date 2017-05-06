@@ -1,4 +1,4 @@
-const RadixRouter = require('radix-router');
+const RadixRouter = require('radix-router')
 const assert = require('assert')
 
 const { METHODS } = require('http')
@@ -104,7 +104,6 @@ class Router {
     const router = self._router
 
     return async function (ctx, next) {
-      const middleware = self._middleware
       const { request } = ctx
       const routeData = router.lookup(request.url)
 

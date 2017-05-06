@@ -1,5 +1,4 @@
 const https = require('https')
-const Buffer = require('buffer')
 const fs = require('fs')
 const { expect } = require('chai')
 
@@ -61,7 +60,6 @@ describe('koa integration', () => {
     router.register({
       path: placeholderPath,
       handler: async (ctx) => {
-        console.log(ctx.params)
         ctx.body = ctx.params
       }
     })
