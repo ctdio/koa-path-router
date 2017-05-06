@@ -1,6 +1,6 @@
 {
   "name": "koa-path-router",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Radix tree based routing for Koa 2.x",
   "main": "./src/Router.js",
   "scripts": {
