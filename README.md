@@ -43,6 +43,26 @@ router.register({
   }
 })
 
+// add placeholders can be added by specifying a segment with a colon
+router.register({
+  path: '/some/:placeholder',
+  method: 'GET',
+  handler: async (ctx) => {
+    const [ placeholder ] = ctx.params
+    ctx.body = `Hello ${placeholder}`
+  }
+})
+
+// prefixes by specifying a * at the end of a route
+router.register({
+  path: '/something/*',
+  method: 'GET',
+  handler: async (ctx) => {
+    const [ placeholder ] = ctx.params
+    ctx.body = `Hello ${placeholder}`
+  }
+})
+
 // additional middleware can be added to subsequent routes via "use",
 // multiple functions can be passed in if needed router.use(...middlewareFuncs)
 router.use(async (ctx, next) => {
