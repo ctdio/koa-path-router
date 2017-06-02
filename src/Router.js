@@ -94,6 +94,8 @@ class Router {
   use (...middleware) {
     assertMiddlewareFuncs(middleware)
     this._middleware = this._middleware.concat(middleware)
+
+    return this
   }
 
   /**
