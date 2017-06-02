@@ -1,5 +1,7 @@
 # koa-path-router
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/charlieduong94/koa-path-router.svg)](https://greenkeeper.io/)
+
 Fast and simple routing for [koa](https://github.com/koajs/koa).
 
 ### Installation
