@@ -114,7 +114,8 @@ class Router {
         const { handler, params } = routeData
         ctx.params = params
 
-        return handler.handleRequest(ctx, next)
+        const requestHandler = handler.handleRequest(ctx, next)
+        return requestHandler || next()
       } else {
         return next()
       }

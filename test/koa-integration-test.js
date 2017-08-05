@@ -14,6 +14,7 @@ describe('koa integration', () => {
   let port
 
   const simplePath = '/api/v1/test'
+  const simpleGetPath = '/api/v1/test1'
   const placeholderPath = '/api/v2/:placeholderA/id/:placeholderB'
 
   function request (method, path) {
@@ -36,7 +37,14 @@ describe('koa integration', () => {
           if (data.length === 0) {
             resolve(null)
           } else {
-            resolve(JSON.parse(data))
+            let resolved
+
+            try {
+              resolved = JSON.parse(data)
+            } catch (e) {
+              resolved = data
+            }
+            resolve(resolved)
           }
         })
       })
@@ -56,6 +64,10 @@ describe('koa integration', () => {
         }
       })
     }
+
+    router.get(simpleGetPath, (ctx) => {
+      ctx.body = {}
+    })
 
     router.register({
       path: placeholderPath,
@@ -104,5 +116,10 @@ describe('koa integration', () => {
     const placeholderValueB = 'test-id'
     const response = await request('GET', `/api/v2/${placeholderValueA}/id/${placeholderValueB}`)
     expect(response).to.deep.equal([placeholderValueA, placeholderValueB])
+  })
+
+  it('should handle request to a valid path with unimplemented method type', async () => {
+    const response = await request('POST', simpleGetPath)
+    expect(response).to.equal('Not Found')
   })
 })
