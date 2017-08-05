@@ -37,4 +37,19 @@ describe('RouteHandler', () => {
     expect(handlerACalled).to.equal(true)
     expect(handlerBCalled).to.equal(true)
   })
+
+  it('should return undefined from handleRequest method if requested a path ' +
+    'with unimplemented method', async () => {
+    const method = 'GET'
+    const handler = new RouteHandler()
+    const fn = async () => {}
+
+    handler.setMethodHandler(method, fn)
+
+    const result = await handler.handleRequest({
+      request: { method }
+    })
+
+    expect(result).to.equal(undefined)
+  })
 })

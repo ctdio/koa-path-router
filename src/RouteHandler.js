@@ -26,8 +26,9 @@ class RouteHandler {
     const { request } = ctx
     const { method } = request
 
+    // Validate that the path exist and the method exists for that path
     const handlerFunc = this._handlers[method]
-    return handlerFunc(ctx, next)
+    return handlerFunc ? handlerFunc(ctx, next) : undefined
   }
 }
 
