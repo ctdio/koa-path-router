@@ -1,5 +1,7 @@
 # koa-path-router
 
+[![Build Status](https://travis-ci.org/charlieduong94/koa-path-router.svg?branch=master)](https://travis-ci.org/charlieduong94/koa-path-router)
+
 Fast and simple routing for [koa](https://github.com/koajs/koa).
 
 ### Installation
