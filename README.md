@@ -79,6 +79,25 @@ router.register({
 })
 ```
 
+Querystring parameters and the hash are parsed out and placed onto the context.
+
+```js
+router.register({
+  path: '/some/route',
+  method: 'GET',
+  handler: async (ctx) => {
+    // ex request '/some/route?key=value&otherKey=otherValue#this-is-a-hash'
+    const { query, hash } = ctx
+    const { key, otherKey } = query
+
+    // key === 'value', otherKey === 'otherValue'
+    // hash === 'this-is-a-hash'
+
+    ctx.body = `Hello world`
+  }
+})
+```
+
 Placeholders are added by specifying a segment with a colon (`:`):
 
 ```js
