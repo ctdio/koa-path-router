@@ -2,6 +2,8 @@ const { expect } = require('chai')
 const Router = require('../src/Router')
 const { METHODS } = require('http')
 
+const sinon = require('sinon')
+
 function registerWithError (routeData, error) {
   const router = new Router()
   const registerRoute = router.register.bind(router, routeData)
@@ -9,6 +11,16 @@ function registerWithError (routeData, error) {
 }
 
 describe('Router', () => {
+  let sandbox
+
+  before(() => {
+    sandbox = sinon.sandbox.create()
+  })
+
+  afterEach(() => {
+    sandbox.restore()
+  })
+
   it('should throw an error when registering routes without input', () => {
     registerWithError(null, /route data must be provided/)
     registerWithError(undefined, /route data must be provided/)
@@ -261,5 +273,76 @@ describe('Router', () => {
     expect(middlewareACalled).to.equal(true)
     expect(middlewareBCalled).to.equal(true)
     expect(handlerCalled).to.equal(true)
+  })
+
+  context('path parsing', () => {
+    const basePath = '/some/path'
+
+    async function _testPathParsing (path, expectedValues) {
+      const handlerSpy = sandbox.spy()
+
+      const router = new Router()
+      router.get(basePath, handlerSpy)
+
+      const handleRequest = router.getRequestHandler()
+
+      const inputContext = {
+        request: {
+          url: path,
+          method: 'GET'
+        },
+        params: undefined
+      }
+
+      const expectedContext = Object.assign({},
+        inputContext,
+        expectedValues)
+
+      await handleRequest(inputContext, () => {})
+
+      sandbox.assert.calledWith(handlerSpy, expectedContext)
+    }
+
+    it('should be able to parse out a route\'s querystring if the route exists', async () => {
+      const path = `${basePath}?a=a&a=b&b=b`
+
+      const query = {
+        a: [ 'a', 'b' ],
+        b: 'b'
+      }
+
+      const expectedValues = {
+        query,
+        search: query
+      }
+
+      await _testPathParsing(path, expectedValues)
+    })
+
+    it('should be able to parse out a route\'s hash if the route exists', async () => {
+      const hash = 'somehashvalue'
+      const path = `${basePath}#${hash}`
+
+      const expectedValues = { hash }
+
+      await _testPathParsing(path, expectedValues)
+    })
+
+    it('should be able to parse out route\'s hash and querystring ' +
+    'if the query comes first', async () => {
+      const hash = 'somehashvalue'
+      const path = `${basePath}?key=value#${hash}`
+
+      const query = {
+        key: 'value'
+      }
+      const expectedValues = {
+        hash,
+        query,
+        search: query
+      }
+
+      await _testPathParsing(path, expectedValues)
+    })
   })
 })

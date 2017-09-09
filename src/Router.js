@@ -6,6 +6,11 @@ const { METHODS } = require('http')
 
 const RouteHandler = require('./RouteHandler')
 
+const querystring = require('querystring')
+const { URL } = require('url')
+
+const BASE_URL = 'http://example.com'
+
 /**
  * Helper function for asserting that the given middleware are functions
  */
@@ -108,11 +113,23 @@ class Router {
 
     return async function (ctx, next) {
       const { request } = ctx
-      const routeData = router.lookup(request.url)
+
+      const { pathname, search, hash } = new URL(request.url, BASE_URL)
+
+      const routeData = router.lookup(pathname)
 
       if (routeData) {
         const { handler, params } = routeData
+
         ctx.params = params
+
+        if (search.length) {
+          ctx.query = ctx.search = querystring.parse(search.substring(1))
+        }
+
+        if (hash.length) {
+          ctx.hash = hash.substring(1)
+        }
 
         const requestHandler = handler.handleRequest(ctx, next)
         return requestHandler || next()
