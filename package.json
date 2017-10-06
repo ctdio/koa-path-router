@@ -4,8 +4,10 @@
   "description": "Radix tree based routing for Koa 2.x",
   "main": "./src/Router.js",
   "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
     "test": "nyc mocha test",
-    "lint": "eslint ."
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -25,11 +27,11 @@
   "homepage": "https://github.com/charlieduong94/koa-path-router#readme",
   "dependencies": {
     "koa-compose": "^4.0.0",
-    "radix-router": "^2.0.0",
-    "sinon": "^3.2.1"
+    "radix-router": "^2.0.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "coveralls": "^3.0.0",
     "eslint": "^3.19.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.2.0",
@@ -39,6 +41,7 @@
     "git-hooks": "^1.1.8",
     "koa": "^2.2.0",
     "mocha": "^3.3.0",
-    "nyc": "^11.1.0"
+    "nyc": "^11.1.0",
+    "sinon": "^4.0.1"
   }
 }
