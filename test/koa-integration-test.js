@@ -7,6 +7,7 @@ const Router = require('../src/Router')
 const Koa = require('koa')
 
 const { METHODS } = require('http')
+const querystring = require('querystring')
 
 describe('koa integration', () => {
   let router
@@ -16,6 +17,7 @@ describe('koa integration', () => {
   const simplePath = '/api/v1/test'
   const simpleGetPath = '/api/v1/test1'
   const placeholderPath = '/api/v2/:placeholderA/id/:placeholderB'
+  const queryAndHashPath = '/api/v3/queryandhash'
 
   function request (method, path) {
     let requestOptions = {
@@ -72,7 +74,16 @@ describe('koa integration', () => {
     router.register({
       path: placeholderPath,
       handler: async (ctx) => {
-        ctx.body = ctx.params
+        ctx.body = ctx.request.params
+      }
+    })
+
+    router.register({
+      path: queryAndHashPath,
+      handler: async (ctx) => {
+        ctx.body = {
+          query: ctx.request.query
+        }
       }
     })
   })
@@ -121,5 +132,11 @@ describe('koa integration', () => {
   it('should handle request to a valid path with unimplemented method type', async () => {
     const response = await request('POST', simpleGetPath)
     expect(response).to.equal('Not Found')
+  })
+
+  it('should handle request to a valid path with unimplemented method type', async () => {
+    const query = 'key=value&key2=value2'
+    const response = await request('GET', `${queryAndHashPath}?${query}`)
+    expect(querystring.stringify(response.query)).to.equal(query)
   })
 })

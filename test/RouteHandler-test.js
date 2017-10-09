@@ -31,7 +31,10 @@ describe('RouteHandler', () => {
 
     await handler.setMethodHandler(method, compose(handlers))
     await handler.handleRequest({
-      request: { method }
+      request: {
+        url: '/',
+        method
+      }
     })
 
     expect(handlerACalled).to.equal(true)
@@ -47,7 +50,10 @@ describe('RouteHandler', () => {
     handler.setMethodHandler(method, fn)
 
     const result = await handler.handleRequest({
-      request: { method }
+      request: {
+        url: '/',
+        method
+      }
     })
 
     expect(result).to.equal(undefined)

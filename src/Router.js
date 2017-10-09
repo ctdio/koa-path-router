@@ -4,20 +4,31 @@ const compose = require('koa-compose')
 
 const { METHODS } = require('http')
 
+const _fastIndexOf = require('./util/fastIndexOf')
 const RouteHandler = require('./RouteHandler')
-
-const querystring = require('querystring')
-const { URL } = require('url')
-
-const BASE_URL = 'http://example.com'
 
 /**
  * Helper function for asserting that the given middleware are functions
  */
-function assertMiddlewareFuncs (middleware) {
+function _assertMiddlewareFuncs (middleware) {
   for (const func of middleware) {
     assert(typeof func === 'function', 'Route middleware must be a function')
   }
+}
+
+function _sanitizeUrl (url) {
+  let str = url
+  const queryIndex = _fastIndexOf(url, '?')
+  if (queryIndex !== -1) {
+    str = str.substring(0, queryIndex)
+  }
+
+  const hashIndex = _fastIndexOf(url, '#')
+  if (hashIndex !== -1) {
+    str = str.substring(0, hashIndex)
+  }
+
+  return str
 }
 
 class Router {
@@ -35,7 +46,7 @@ class Router {
     this._router = new RadixRouter()
 
     if (middleware) {
-      assertMiddlewareFuncs(middleware)
+      _assertMiddlewareFuncs(middleware)
     }
 
     this._middleware = middleware || []
@@ -64,7 +75,7 @@ class Router {
     if (middleware) {
       assert(middleware instanceof Array, 'The route\'s middleware must be provided as an array')
 
-      assertMiddlewareFuncs(middleware)
+      _assertMiddlewareFuncs(middleware)
       handlerFuncs = this._middleware.concat(middleware)
     }
 
@@ -97,7 +108,7 @@ class Router {
    * Method for adding middleware like the regular koa style
    */
   use (...middleware) {
-    assertMiddlewareFuncs(middleware)
+    _assertMiddlewareFuncs(middleware)
     this._middleware = this._middleware.concat(middleware)
 
     return this
@@ -111,25 +122,16 @@ class Router {
     const self = this
     const router = self._router
 
-    return async function (ctx, next) {
+    return async function handleRequest (ctx, next) {
       const { request } = ctx
+      const url = _sanitizeUrl(request.url)
 
-      const { pathname, search, hash } = new URL(request.url, BASE_URL)
-
-      const routeData = router.lookup(pathname)
+      const routeData = router.lookup(url)
 
       if (routeData) {
         const { handler, params } = routeData
 
-        ctx.params = params
-
-        if (search.length) {
-          ctx.query = ctx.search = querystring.parse(search.substring(1))
-        }
-
-        if (hash.length) {
-          ctx.hash = hash.substring(1)
-        }
+        request.params = params
 
         const requestHandler = handler.handleRequest(ctx, next)
         return requestHandler || next()
