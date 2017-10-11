@@ -19,6 +19,9 @@ describe('koa integration', () => {
   const placeholderPath = '/api/v2/:placeholderA/id/:placeholderB'
   const queryAndHashPath = '/api/v3/queryandhash'
 
+  const wildcardPathPrefix = '/api/v4/'
+  const wildcardPath = `${wildcardPathPrefix}**`
+
   function request (method, path) {
     let requestOptions = {
       hostname: 'localhost',
@@ -86,6 +89,13 @@ describe('koa integration', () => {
         }
       }
     })
+
+    router.register({
+      path: wildcardPath,
+      handler: async (ctx) => {
+        ctx.body = 'wild'
+      }
+    })
   })
 
   before('set http server', (done) => {
@@ -126,7 +136,10 @@ describe('koa integration', () => {
     const placeholderValueA = 'test'
     const placeholderValueB = 'test-id'
     const response = await request('GET', `/api/v2/${placeholderValueA}/id/${placeholderValueB}`)
-    expect(response).to.deep.equal([placeholderValueA, placeholderValueB])
+    expect(response).to.deep.equal({
+      placeholderA: placeholderValueA,
+      placeholderB: placeholderValueB
+    })
   })
 
   it('should handle request to a valid path with unimplemented method type', async () => {
@@ -138,5 +151,13 @@ describe('koa integration', () => {
     const query = 'key=value&key2=value2'
     const response = await request('GET', `${queryAndHashPath}?${query}`)
     expect(querystring.stringify(response.query)).to.equal(query)
+  })
+
+  it('should be able to route requests to the wildcard path', async () => {
+    const responseA = await request('GET', `${wildcardPathPrefix}wildcard`)
+    expect(responseA).to.equal('wild')
+
+    const responseB = await request('GET', `${wildcardPathPrefix}random/path`)
+    expect(responseB).to.equal('wild')
   })
 })

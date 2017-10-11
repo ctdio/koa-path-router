@@ -4,6 +4,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/charlieduong94/koa-path-router/badge.svg?branch=master)](https://coveralls.io/github/charlieduong94/koa-path-router?branch=master)
 
 Fast and simple routing for [koa](https://github.com/koajs/koa).
+[radix-router](https://github.com/charlieduong94/radix-router) is used to achieve fast and
+consistent lookups.
+
 
 ## Installation
 
@@ -12,6 +15,39 @@ npm i --save koa-path-router
 ```
 
 ## Usage
+
+### A minimal example
+```js
+const Koa = require('koa')
+const app = new Koa()
+
+const Router = require('koa-path-router')
+const router = new Router({
+  // define middleware for all routes (optional)
+  middleware: [
+    async (ctx, next) => {
+      const startTime = Date.now()
+      await next()
+      console.log(`Request took ${Date.now() - startTime} ms`)
+    }
+  ]
+})
+
+// add routes via the register function
+router.register({
+  path: '/hello',
+  method: 'GET',
+  handler: async (ctx) => {
+    ctx.body = 'Hello world'
+  }
+})
+
+app.use(router.getRequestHandler())
+
+app.listen(8080, () => {
+  console.log('Server is listening on port 8080')
+})
+```
 
 ### Creating an instance of the router
 
@@ -79,48 +115,46 @@ router.register({
 })
 ```
 
-Querystring parameters and the hash are parsed out and placed onto the context.
+You can grab querystring values from the `ctx.request` object (as usual).
 
 ```js
 router.register({
   path: '/some/route',
   method: 'GET',
   handler: async (ctx) => {
-    // ex request '/some/route?key=value&otherKey=otherValue#this-is-a-hash'
-    const { query, hash } = ctx
-    const { key, otherKey } = query
-
-    // key === 'value', otherKey === 'otherValue'
-    // hash === 'this-is-a-hash'
-
+    const { query } = ctx.request
+    // a request to '/some/route?key=value'
+    // will set query to { key: 'value' }
     ctx.body = `Hello world`
   }
 })
 ```
 
-Placeholders are added by specifying a segment with a colon (`:`):
+Placeholders are added by specifying a segment with a colon (`:`).
+These values are placed on the `ctx.request` object:
 
 ```js
 router.register({
   path: '/some/:placeholder',
   method: 'GET',
   handler: async (ctx) => {
-    const [ placeholder ] = ctx.params
+    const { placeholder } = ctx.request.params
     ctx.body = `Hello ${placeholder}`
   }
 })
 
 ```
 
-Wildcard routes can be added by appending a `*` to the end of a route:
+Wildcard routes can be added by appending a `/**` to the end of a route:
 
 ```js
 router.register({
-  path: '/something/*',
+  path: '/wild/**',
   method: 'GET',
   handler: async (ctx) => {
-    const [ placeholder ] = ctx.params
-    ctx.body = `Hello ${placeholder}`
+    // any requests to urls such as '/wild/card' or '/wild/path/not/defined/'
+    // will be routed here
+    ctx.body = 'wild!'
   }
 })
 ```
@@ -167,37 +201,4 @@ To use the router with a `koa` app instance, pass it the function returned by `g
 
 ```js
 app.use(router.getRequestHandler())
-```
-
-### A minimal example
-```js
-const Koa = require('koa')
-const app = new Koa()
-
-const Router = require('koa-path-router')
-const router = new Router({
-  // define middleware for all routes (optional)
-  middleware: [
-    async (ctx, next) => {
-      const startTime = Date.now()
-      await next()
-      console.log(`Request took ${Date.now() - startTime} ms`)
-    }
-  ]
-})
-
-// add routes via the register function
-router.register({
-  path: '/hello',
-  method: 'GET',
-  handler: async (ctx) => {
-    ctx.body = 'Hello world'
-  }
-})
-
-app.use(router.getRequestHandler())
-
-app.listen(8080, () => {
-  console.log('Server is listening on port 8080')
-})
 ```

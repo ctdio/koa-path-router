@@ -27,7 +27,7 @@
   "homepage": "https://github.com/charlieduong94/koa-path-router#readme",
   "dependencies": {
     "koa-compose": "^4.0.0",
-    "radix-router": "^2.0.0"
+    "radix-router": "^3.0.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
