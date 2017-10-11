@@ -7,6 +7,7 @@ const Router = require('../src/Router')
 const Koa = require('koa')
 
 const { METHODS } = require('http')
+const querystring = require('querystring')
 
 describe('koa integration', () => {
   let router
@@ -16,6 +17,10 @@ describe('koa integration', () => {
   const simplePath = '/api/v1/test'
   const simpleGetPath = '/api/v1/test1'
   const placeholderPath = '/api/v2/:placeholderA/id/:placeholderB'
+  const queryAndHashPath = '/api/v3/queryandhash'
+
+  const wildcardPathPrefix = '/api/v4/'
+  const wildcardPath = `${wildcardPathPrefix}**`
 
   function request (method, path) {
     let requestOptions = {
@@ -72,7 +77,23 @@ describe('koa integration', () => {
     router.register({
       path: placeholderPath,
       handler: async (ctx) => {
-        ctx.body = ctx.params
+        ctx.body = ctx.request.params
+      }
+    })
+
+    router.register({
+      path: queryAndHashPath,
+      handler: async (ctx) => {
+        ctx.body = {
+          query: ctx.request.query
+        }
+      }
+    })
+
+    router.register({
+      path: wildcardPath,
+      handler: async (ctx) => {
+        ctx.body = 'wild'
       }
     })
   })
@@ -115,11 +136,28 @@ describe('koa integration', () => {
     const placeholderValueA = 'test'
     const placeholderValueB = 'test-id'
     const response = await request('GET', `/api/v2/${placeholderValueA}/id/${placeholderValueB}`)
-    expect(response).to.deep.equal([placeholderValueA, placeholderValueB])
+    expect(response).to.deep.equal({
+      placeholderA: placeholderValueA,
+      placeholderB: placeholderValueB
+    })
   })
 
   it('should handle request to a valid path with unimplemented method type', async () => {
     const response = await request('POST', simpleGetPath)
     expect(response).to.equal('Not Found')
+  })
+
+  it('should handle request to a valid path with unimplemented method type', async () => {
+    const query = 'key=value&key2=value2'
+    const response = await request('GET', `${queryAndHashPath}?${query}`)
+    expect(querystring.stringify(response.query)).to.equal(query)
+  })
+
+  it('should be able to route requests to the wildcard path', async () => {
+    const responseA = await request('GET', `${wildcardPathPrefix}wildcard`)
+    expect(responseA).to.equal('wild')
+
+    const responseB = await request('GET', `${wildcardPathPrefix}random/path`)
+    expect(responseB).to.equal('wild')
   })
 })

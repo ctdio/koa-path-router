@@ -28,7 +28,12 @@ class RouteHandler {
 
     // Validate that the path exist and the method exists for that path
     const handlerFunc = this._handlers[method]
-    return handlerFunc ? handlerFunc(ctx, next) : undefined
+
+    if (handlerFunc) {
+      return handlerFunc(ctx, next)
+    } else {
+      return null
+    }
   }
 }
 
