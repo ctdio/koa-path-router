@@ -4,7 +4,6 @@ const compose = require('koa-compose')
 
 const { METHODS } = require('http')
 
-const _fastIndexOf = require('./util/fastIndexOf')
 const RouteHandler = require('./RouteHandler')
 
 /**
@@ -18,12 +17,12 @@ function _assertMiddlewareFuncs (middleware) {
 
 function _sanitizeUrl (url) {
   let str = url
-  const queryIndex = _fastIndexOf(url, '?')
+  const queryIndex = url.indexOf('?')
   if (queryIndex !== -1) {
     str = str.substring(0, queryIndex)
   }
 
-  const hashIndex = _fastIndexOf(url, '#')
+  const hashIndex = url.indexOf('#')
   if (hashIndex !== -1) {
     str = str.substring(0, hashIndex)
   }
